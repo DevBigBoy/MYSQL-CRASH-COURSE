@@ -1,11 +1,13 @@
--- ==============================
--- CREATING DATABASES AND TABLES
--- ==============================
+-- ===================================================================================================================
+--                                           Chapter 2 – Creating Databases and Tables
+-- ===================================================================================================================
 -- you will learn how to create tables to store datain those databases.
 
+-- 
 -- Get a list of Available mysql databases;
+-- 
 show databases;
-SHOW SCHEMAS;
+show SCHEMAS;
 
 -- Creating databases
 create database circus;
@@ -16,7 +18,7 @@ create database music;
  ! Your database's name should describe the type of data stored there
 */
 
--- TO remove A database
+-- Removing databases
 drop database circus;
 drop database finance;
 drop database music;
@@ -24,8 +26,8 @@ drop database music;
 -- create a new database called land
 create database land;
 
--- Set your default database to land before you create the tables below
--- so they will be created in the land database
+-- Set your default database to "land" before you create the tables below
+-- so they will be created in the "land" database.
 use land;
 
 create table continent 
@@ -57,31 +59,17 @@ ex :
     cheeck
     default
 */
+
+-- 
 -- Primary Keys
-create table customer
+-- 
+create table high_temperature
 (
-    customer_id     int,
-    first_name	    varchar(50),
-    last_name       varchar(50),
-    address         varchar(100),
-    primary key (customer_id)
-); 
-
-insert into customer (customer_id, first_name, last_name, address)
-values
-(1, 'Bob', 'Smith', '12 Dreary Lane'),
-(2, 'Sally', 'Jones', '76 Boulevard Meugler'),
-(3, 'Karen', 'Bellyacher', '354 Main Street');
-/*
-    making customer_id the primary key benefits me in three ways:
-    1 - it prevent duplicate customer IDs from being inserted into the table.
-    2 - prevents users from adding null value.
-    those two benefits fall under the category of data intergrity
-    3 - it causes mysql to create an index. an index will help speed up the performance of sql queries that select from the table
-note: for performance reasons it's best to keep the PK values as short as possible
-
-primary key that consists of more than one column which is known as a composite key
-*/
+    city				varchar(50),
+    year				int,
+    high_temperature	int,
+    primary key (city, year)
+);
 
 -- Load data into the high_temperature table
 insert into high_temperature (city, year, high_temperature)
@@ -93,16 +81,231 @@ values
 ('International Falls, MN', 2021,	77),
 ('New York, NY', 			2021,	98);
 
--- Foreign keys
 
+
+create table customer
+(
+    customer_id     int,
+    first_name	    varchar(50),
+    last_name       varchar(50),
+    address         varchar(100),
+    primary key (customer_id)
+); 
+
+alter table customer add column zip varchar(50);
+alter table customer drop column address;
+alter table customer rename column zip to zip_code;
+alter table customer rename to valued_customer;
+
+-- If you want to load the customer table with data, run these commands:
+insert into customer (customer_id, first_name, last_name, address)
+values
+(1, 'Bob', 'Smith', '12 Dreary Lane'),
+(2, 'Sally', 'Jones', '76 Boulevard Meugler'),
+(3, 'Karen', 'Bellyacher', '354 Main Street');
+
+/*
+    making customer_id the primary key benefits me in three ways:
+    1 - it prevent duplicate customer IDs from being inserted into the table.
+    2 - prevents users from adding null value.
+    those two benefits fall under the category of data intergrity
+    3 - it causes mysql to create an index. an index will help speed up the performance of sql queries that select from the table
+note: for performance reasons it's best to keep the PK values as short as possible
+
+primary key that consists of more than one column which is known as a composite key
+*/
+
+-- 
+-- Foreign keys
+-- 
+
+/*
+    Defining a foreign key establishes a realtionship between two tables so that you will able to retrieve one result set containing data from both tables
+    
+*/
 create table complaint
 (
-    complaint_id int,
-    customer_id int,
-    complaint varchar(200),
+    complaint_id  int,
+    customer_id   int,
+    complaint     varchar(200),
     primary key (complaint_id),
-    foreign key (customer_id) references customer (customer_id)
+    foreign key (customer_id) references customer(customer_id)
 );
+	
 -- Insert one row of data into the complaint table
 insert into complaint (complaint_id, customer_id, complaint)
 values (1, 3, 'I want to speak to your manager');
+
+-- Trying to insert this row into the complaint table will fail
+-- because there is no customer 4 in the customer table.
+insert into complaint (complaint_id, customer_id, complaint)
+values (2, 4, 'My food was cold');
+
+-- Exercise 2-4: Create the athletic database and the sport and player tables with primary and foreign keys.
+create database athletic;
+
+use athletic;
+
+
+create table sport
+(
+	sport_id	int,
+	sport_name	varchar(50),
+	primary key (sport_id)
+);
+
+create table player
+(
+    player_id int,
+    player_name varchar(50),
+    player_age int,
+    sport_id int,
+    primary key (player_id),
+    foreign key (sport_id) references sport(sport_id)
+);
+
+
+-- 
+-- Not Null
+-- 
+
+/*
+A null value represents an empty or undefined value. It is not the same as zero, an empty character string, or a space spacecharacter.
+*/
+
+create table contact
+(
+    contact_id     int,
+    name           varchar(50)  not null,
+    city           varchar(50),
+    phone          varchar(20),
+    email_address  varchar(50),
+    primary key(contact_id)
+);
+
+-- Note that for contact 3, null does not have quotes around it:
+insert into contact values
+(1, 'Steve Chen',	'Beijing',	'123-3123',	'steve@schen21.org'),
+(2, 'Joan Field',	'New York',	'321-4321',	'jfield@jfny99.com'),
+(3, 'Bill Bashful',	'Lincoln',	null,		'bb@shyguy77.edu');
+
+
+-- 
+-- Not Null
+-- 
+
+/*
+if you want to prevent duplicate values in a column, you can add unique constraint to the column definition
+*/
+create table contact
+(
+    contact_id     int,
+    name           varchar(50)  not null,
+    city           varchar(50),
+    phone          varchar(20),
+    email_address  varchar(50)  unique,
+    primary key(contact_id)
+);
+
+-- 
+-- Check
+-- You can use a check constraint to make sure that a column contains certain values or a certain range of values
+
+-- This is an improved version of the high_temperature table that we created above.
+-- In this version we have check constraints for the year and high_temperature columns.
+-- To create this new version of the table, we drop the old table, recreate the table, 
+-- and reinsert the data.
+
+-- Drop the old version of the table (if one exists)
+drop table if exists high_temperature;
+
+create table high_temperature
+(
+    city              varchar(50),
+    year              int,
+    high_temperature  int,
+    constraint check (year between 1880 and 2200),
+    constraint check (high_temperature < 200),
+    primary key (city, year)
+);
+
+-- Reinsert the data into the high_temperature table
+insert into high_temperature (city, year, high_temperature)
+values
+('Death Valley, CA', 		2020,	130),
+('International Falls, MN', 2020,	78),
+('New York, NY', 			2020,	96),
+('Death Valley, CA', 		2021,	128),
+('International Falls, MN', 2021,	77),
+('New York, NY', 			2021,	98);
+
+-- 
+-- Default
+--
+
+create table job
+(
+    job_id     int,
+    job_desc   varchar(100),
+    shift      varchar(50) default '9-5',
+    primary key (job_id)
+);
+
+-- 
+-- Indexes
+-- 
+-- MySQL lets you create indexes on your tables to speed up the process of retrieving data
+
+create table product
+	(
+	product_id		int,
+	product_name	varchar(100),
+	supplier_id		int
+	);
+-- Create an index on the supplier_id column to speed up retrieval
+create index product_supplier_index on product(supplier_id);
+
+
+
+create table owner
+(
+	owner_id		int,
+	owner_name		varchar(100),
+	owner_address	varchar(100),
+	primary key (owner_id)
+);
+
+
+create table breed
+(
+	breed_id	int,
+	breed_name	varchar(50),
+	temperament	varchar(100),
+	primary key (breed_id)
+);
+
+
+create table veterinarian
+(
+	veterinarian_id			int,
+	veterinarian_name		varchar(100),
+	veterinarian_address	varchar(100),
+	veterinarian_phone		varchar(100),
+	primary key (veterinarian_id)
+);
+
+
+create table dog
+(
+    dog_id            int,
+    dog_name          varchar(50) unique,
+    owner_id          int,
+    breed_id          int,
+    veterinarian_id   int,
+    primary key (dog_id),
+    foreign key (owner_id) references owner(owner_id),
+    foreign key (breed_id) references breed(breed_id),
+    foreign key (veterinarian_id) references veterinarian(veterinarian_id)
+);
+
+	
