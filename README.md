@@ -17,3 +17,7 @@
 - 🔗 [TOOL: MySQL Workbench](https://dev.mysql.com/doc/workbench/en/)
 
 ---
+
+### 📚 Courses
+
+- 🔗 [MySQL Database By Mohammed Safadi ](https://www.youtube.com/playlist?list=PL13Ag2mfco66zVp4TQ-TcD9l5DMjNheR9)
