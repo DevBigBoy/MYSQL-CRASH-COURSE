@@ -176,3 +176,23 @@ create table book(
     book_proposal text,
     entire_book mediumtext
 );
+
+/*
+
+=============================
+    Binary Data Types
+=============================
+- A binary larage object is a variable-length string of bytes.
+- You can user BLOBs to store binary data like images, PDF files and videos
+
+*/
+
+create table encryption(
+    key_id int,
+    encryption_key binary(50)
+);
+
+create table signature (
+    signature_id int,
+    signature varbinary(400)
+);
